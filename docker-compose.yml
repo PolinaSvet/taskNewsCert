@@ -1,0 +1,115 @@
+version: "2.14"
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+    networks:
+      - kafka-network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092, PLAINTEXT_HOST://localhost:29092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+    networks:
+      - kafka-network
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+
+  
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    depends_on:
+      - kafka
+    environment:
+      NEWSNAMESERVISE: api-gateway 
+    networks:
+      - kafka-network
+    ports:
+      - "8080:8080"
+
+  service-news:
+    build:
+      context: ./service-news
+      dockerfile: Dockerfile
+    depends_on:
+      - kafka
+      - db_news
+    environment:
+      #NEWSDBPG: postgres://postgres:root@db_news:5432/prgNews
+      NEWSDBPG: postgres://${DB_USER_NEWS}:${DB_PASSWORD_NEWS}@db_news:5432/${DB_NAME_NEWS}
+      NEWSNAMESERVISE: service-news-001
+    networks:
+      - kafka-network
+
+  service-comments:
+    build:
+      context: ./service-comments
+      dockerfile: Dockerfile
+    depends_on:
+      - kafka
+      - db_comments
+    environment:
+      #COMMENTSDBPG: postgres://postgres:root@db_comments:5432/prgComments
+      COMMENTSDBPG: postgres://${DB_USER_COMMENTS}:${DB_PASSWORD_COMMENTS}@db_comments:5432/${DB_NAME_COMMENTS}
+      COMMENTSNAMESERVISE: service-comments-001
+    networks:
+      - kafka-network
+
+  service-censor:
+    build:
+      context: ./service-censor
+      dockerfile: Dockerfile
+    depends_on:
+      - kafka
+    environment:
+      CENSORNAMESERVISE: service-censor-001
+    networks:
+      - kafka-network
+
+  db_news:
+    image: postgres:alpine
+    restart: always
+    ports:
+      - "9009:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER_NEWS} #postgres  
+      POSTGRES_PASSWORD: ${DB_PASSWORD_NEWS} #root  
+      POSTGRES_DB: ${DB_NAME_NEWS} #prgNews     
+    volumes:
+      - db_data_news:/var/lib/postgresql/data
+      - ./service-news/init_news.sql:/docker-entrypoint-initdb.d/init_news.sql  
+    networks:
+      - kafka-network
+
+  db_comments:
+    image: postgres:17
+    restart: always
+    ports:
+      - "9008:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER_COMMENTS} #postgres  
+      POSTGRES_PASSWORD: ${DB_PASSWORD_COMMENTS} #root  
+      POSTGRES_DB: ${DB_NAME_COMMENTS} #prgComments  
+    volumes:
+      - db_data_comments:/var/lib/postgresql/data
+      - ./service-comments/init_comments.sql:/docker-entrypoint-initdb.d/init_comments.sql  
+    networks:
+      - kafka-network  
+
+
+volumes:
+  db_data_news:
+  db_data_comments:
+
+networks:
+  kafka-network:
+    driver: bridge

@@ -1,0 +1,6 @@
+{
+    "kafka_brokers": ["kafka:9092"],
+    "topic_response": "news-response",
+    "topic_received": "news-received",
+    "topic_received_one_news": "one-news-received"
+}

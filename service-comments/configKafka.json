@@ -1,0 +1,6 @@
+{
+    "kafka_brokers": ["kafka:9092"],
+    "topic_response": "comments-response",
+    "topic_received": "comments-received",
+    "topic_received_add_comments": "add-comments-received"
+}

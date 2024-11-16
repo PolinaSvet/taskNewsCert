@@ -1,0 +1,5 @@
+{
+    "kafka_brokers": ["kafka:9092"],
+    "topic_response": "censor-response",
+    "topic_received_add_censor": "add-censor-received"
+}

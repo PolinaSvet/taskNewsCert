@@ -1,0 +1,345 @@
+{{define "content"}}
+
+<div class="wrapper">
+			<div class="header">
+				<div class="headerContent">
+					<div class="logo">
+						
+						<a href="https://github.com/PolinaSvet" target="_blank">News<span class="pink">Aggregator</span><span></span></a>
+					</div>
+					<ul class="nav">
+						<li data-rubric="Russia" data-count="10"><a href="#">Russia</a></li>
+						<li data-rubric="World" data-count="10"><a href="#">World</a></li>
+						<li data-rubric="Sport" data-count="10"><a href="#">Sport</a></li>
+						<li data-rubric="Technology" data-count="10"><a href="#">Technology</a></li>
+						<li data-rubric="Nature" data-count="10"><a href="#">Nature</a></li>
+						<li data-rubric="Politics" data-count="10"><a href="#">Politics</a></li>
+						<li data-rubric="Design" data-count="10"><a href="#">Design</a></li>
+						<li data-rubric="Development" data-count="10"><a href="#">Development</a></li>
+						<li data-rubric="Programming" data-count="10"><a href="#">Programming</a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="content">
+				<div class="leftCol">
+					
+					<ul class="leftNav">
+						<label>Set filter:</label>
+						<input type="text" id="filterInput" placeholder="Input filter...">
+					</ul>
+
+					<ul class="leftNav">
+						<li data-rubric="Russia" data-count="10"><a href="#">Russia</a></li>
+						<li data-rubric="World" data-count="10"><a href="#">World</a></li>
+						<li data-rubric="Sport" data-count="10"><a href="#">Sport</a></li>
+						<li data-rubric="Technology" data-count="10"><a href="#">Technology</a></li>
+						<li data-rubric="Nature" data-count="10"><a href="#">Nature</a></li>
+						<li data-rubric="Politics" data-count="10"><a href="#">Politics</a></li>
+						<li data-rubric="Design" data-count="10"><a href="#">Design</a></li>
+						<li data-rubric="Development" data-count="10"><a href="#">Development</a></li>
+						<li data-rubric="Programming" data-count="10"><a href="#">Programming</a></li>
+					</ul>
+					<div class="block">
+						<h3>The algorithm of the application:</h3>
+						<ul>
+							<li><dd>The news aggregator periodically queries news sites, receives a list of news in XML format (RSS) in response and saves new publications in the database.</dd></li>
+							<li><dd>The user goes to the address of the aggregator web application and sees a fixed number of recent publications with a brief description and a link to the source.</dd></li>	
+						</ul>
+						<p><i></i></p>
+						<p><a href="https://github.com/PolinaSvet/taskNews" class="more" target="_blank">Read more »</a></p>
+					</div>
+				</div>
+				<div class="main">
+				
+					<div class="news-container">
+						<h1 id="newsCaption">News</h1>
+						<div class="news-items">
+							<!-- Здесь будут новости -->
+						</div>
+						<div class="comment-items">
+							<!-- Здесь будут комментарии -->
+						</div>
+						<div class="pagination" id="pagination-container">
+							<!-- Здесь будут пагинация -->
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="footer">
+				<p>&copy; Footer content <a href="#">Hi there!</a></p>
+			</div>
+		</div>
+ 
+<script>
+
+	//add comments to news
+	function clickAddComments(event) {
+		const button = event.target;
+		let news_id = parseInt(button.getAttribute('data-news_id'), 10);
+		let userName = document.getElementById('userName').value;
+		let content = document.getElementById('content').value;
+		let requestID = generateRequestID();
+		const now = new Date();
+		const seconds = parseInt(now.getTime()/1000,10);
+		var formData = {};
+		
+		formData['id'] =0;
+		formData['id_news'] = news_id;
+		formData['comment_time'] = seconds;
+		formData['user_name'] = userName;
+		formData['content'] = content;
+
+		if (userName == "" || content == "")
+		{
+			alert("Name and content must be filled in !");
+		}
+		else{
+			console.log("comments",news_id,requestID)
+
+		fetch(`/comments?id_news=${news_id}&request_id=${requestID}`,  
+		{
+			method: "POST",
+			headers: {'Content-Type': 'application/json',},
+			body: JSON.stringify(formData),
+		})
+		.then(response => {
+			if (response.ok) {
+				const buttonClickNews = document.getElementById("buttonClickNews");
+
+				if (buttonClickNews) {
+					buttonClickNews.click();
+				} else {
+					console.error("Element with ID 'buttonClickNews' not found.");
+				}
+			} else {
+				console.error("Status Bad!");
+			}
+		})
+		.catch((error) => {
+		console.error('Error:', error);
+		alert('Error: ' + error.message);
+		});
+	}
+	}
+
+	//click by news
+	function clickNews(event) {
+
+		// Получаем элемент, вызвавший событие
+    	const button = event.target;
+		let news_id = button.getAttribute('data-news_id');
+		//console.log("clickNews: ",news_id );
+
+				let requestID = generateRequestID();
+
+				document.getElementById("newsCaption").innerHTML = "";
+
+                fetch(`/newsDetailed?id_news=${news_id}&request_id=${requestID}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        $('.news-items').html('');
+						$('.comment-items').html('');
+						$('.pagination').html('');
+							//news
+							console.log("1:",data.news)
+							console.log("1x:",data.news[0])
+							console.log("2:",data.comments)
+							console.log("3:",data.idNews)
+						if (data.news && data.news.length > 0) {
+                            let PublicTimeSec = new Date(data.news[0].public_time*1000);
+                            let PublicTimeSecStr = PublicTimeSec.toString();
+                            let html = `
+								<div class="news-item">
+									<div class="news-image">
+										<a href=${data.news[0].link} target="_blank">
+											<img src="${data.news[0].image_link}"></img>
+										</a>
+										<p>${PublicTimeSecStr}</p>
+										<p><a href=${data.news[0].link} target="_blank">${data.news[0].link_title} »</a></p>
+									</div>
+									<div class="news-content">
+										<h1 >${data.news[0].title}</h1>
+										<p>${data.news[0].content}</p>
+									</div>
+								</div>
+                            `;
+                            $('.news-items').append(html);
+						}
+						//comments
+						if (data.comments && data.comments.length > 0) {
+                        data.comments.forEach(comments => {
+                            let CommentTimeSec = new Date(comments.comment_time*1000);
+                            let CommentTimeSecStr = CommentTimeSec.toString();
+                            let html = `
+								<div class="comment-item">
+									<div>
+										<h4>${comments.user_name}</h4>
+										<p>${CommentTimeSecStr}</p>
+										<p><dd>${comments.content}</dd></p>
+									</div>
+								</div>
+                            `;
+                            $('.comment-items').append(html);
+                        });
+						}
+						// add comments
+						let htmlAddComment = `
+								<div class="commentadd-item">
+									<div>
+										<label>User:</label>
+										<input type="text" id="userName" placeholder="Input user...">
+									</div>
+								</div>
+								<div class="commentadd-item">
+									<div>
+										<label>Add comment to news:</label>
+										<textarea id="content" ></textarea>
+									</div>
+								</div>
+								<div class="commentadd-item">
+									<div>	
+										<button type="submit" data-news_id="${data.idNews}" onclick="clickAddComments(event)">Add</button>
+										<button type="submit" data-news_id="${data.idNews}" id="buttonClickNews" onclick="clickNews(event)">Refresh</button>
+									</div>
+								</div>
+                            `;
+                        $('.comment-items').append(htmlAddComment);
+
+                    })
+                    .catch(error => {
+                        console.error("Error fetching comment:", error);
+                    });
+	}
+
+	//get all news
+    $(document).ready(function() {
+
+		let currentRubric = "Sport"; // Default rubric
+     	let currentCount = 10; // Default news count per page
+     	let currentPage = 1; // Initial page
+
+            $('.nav li, .leftNav li').click(function() {
+                let rubric = $(this).data('rubric');
+                let count = $(this).data('count');
+				let filter = document.getElementById('filterInput').value;
+				let page = 1;
+
+				document.getElementById("newsCaption").innerHTML = rubric;
+				fetchNews(rubric, count,filter, page);
+
+            });
+
+			// get all news on start
+			$('.leftNav li[data-rubric="Sport"][data-count="10"]').trigger('click');
+
+			function fetchNews(rubric, count,filter, page) {
+
+				let requestID = generateRequestID();
+
+				fetch(`/news/${rubric}/${count}?filter=${filter}&page=${page}&request_id=${requestID}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        $('.news-items').html('');
+						$('.comment-items').html('');
+						$('.pagination').html('');
+
+						//console.log(data);
+
+                        data.news.forEach(news => {
+							//console.log("1:",news);
+                            let PublicTimeSec = new Date(news.public_time*1000);
+                            let PublicTimeSecStr = PublicTimeSec.toString();
+							//console.log("2:",news.link);
+                            let html = `
+								<div class="news-item">
+									<div class="news-image">
+										<a >
+											<img src="${news.image_link}" data-news_id="${news.Id}" onclick="clickNews(event)"></img>
+										</a>
+										<p>${PublicTimeSecStr}</p>
+										<p><a href=${news.link} target="_blank">${news.link_title} »</a></p>
+									</div>
+									<div class="news-content">
+										<h1 >${news.title}</h1>
+										<p>${news.content}</p>
+									</div>
+
+								</div>
+                            `;
+                            $('.news-items').append(html);
+                        });
+
+						renderPagination(data.paginate, rubric, count, filter);
+                    })
+                    .catch(error => {
+                        console.error("Error fetching news:", error);
+                    });
+			}
+			
+    //});
+
+	// Function to render pagination (pure JavaScript)
+	function renderPagination(data, rubric, count, filter) {
+		$('#pagination-container').empty(); // Clear existing pagination
+
+		// Calculate the number of pages
+		const totalPages = data.page_count;
+
+		// Create pagination elements
+		let paginationHTML = '';
+		paginationHTML += '<button class="page-button" data-page="1">First [1]</button>'; // First page button
+		//paginationHTML += '<button class="page-button" data-page="' + (currentPage - 1) + '">Previous</button>'; // Previous page button
+
+		// Calculate start and end page numbers to display
+		let startPage = Math.max(1, currentPage - 3);
+		let endPage = Math.min(totalPages, currentPage + 3);
+
+		// Adjust start and end pages if they go beyond the limits
+		if (endPage - startPage < 5) {
+			if (endPage < totalPages) {
+			endPage = Math.min(totalPages, startPage + 5);
+			} else {
+			startPage = Math.max(1, endPage - 5);
+			}
+		}
+
+		// Add page number buttons
+		for (let i = startPage; i <= endPage; i++) {
+			if (i === currentPage) {
+			paginationHTML += '<span class="page-number active">' + i + '</span>'; // Current page
+			} else {
+			paginationHTML += '<button class="page-button" data-page="' + i + '">' + i + '</button>'; // Other pages
+			}
+		}
+
+		//paginationHTML += '<button class="page-button" data-page="' + (currentPage + 1) + '">Next</button>'; // Next page button
+		paginationHTML += '<button class="page-button" data-page="' + totalPages + '">Last ['+totalPages+']</button>'; // Last page button
+
+		// Set the pagination HTML
+		$('#pagination-container').html(paginationHTML);
+
+		// Add event listeners to the buttons
+		$('.page-button').click(function() {
+			const newPage = $(this).data('page');
+			if (newPage !== currentPage) {
+			currentPage = newPage;
+			fetchNews(rubric, count,filter, currentPage);
+			}
+		});
+	}
+
+
+	});
+
+    // Функция для генерации UUID
+    function generateRequestID() {
+		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+			var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+			return v.toString(16);
+		});
+	}
+
+</script>
+
+
+{{end}}

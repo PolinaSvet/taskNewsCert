@@ -1,0 +1,67 @@
+{
+  "rss": {
+    "World": {
+      "link":[
+        "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+        "https://www.theguardian.com/world/rss"
+      ],
+      "image": "database/image/imageWorld.png"
+	  },
+    "Russia": {
+      "link":[
+        "https://ria.ru/export/rss2/index.xml",
+        "https://www.interfax.ru/rss.asp"
+      ],
+      "image": "database/image/imageRussia.png"
+	  },
+    "Sport": {
+      "link":[
+        "http://news.mail.ru/rss/sport/91/",
+        "http://sports.ru/rss/topnews.xml",
+        "http://news.sportbox.ru/taxonomy/term/20317/0/feed"
+      ],
+      "image": "database/image/imageSport.png"
+	  },
+    "Technology": {
+      "link":[
+        "http://feeds.feedburner.com/techradar/tech-reviews",
+        "http://habrahabr.ru/rss/blogs/gadgets/"
+      ],
+      "image": "database/image/imageTechnology.png"
+	  },
+    "Nature": {
+      "link":[
+        "https://ecoportal.su/rss/news.xml"
+      ],
+      "image": "database/image/imageNature.png"
+	  },
+    "Politics": {
+      "link":[
+        "https://news.rambler.ru/rss/politics/",
+        "https://aif.ru/rss/politics.php"
+      ],
+      "image": "database/image/imagePolitics.png"
+	  },
+    "Design": {
+      "link":[
+        "https://www.creativebloq.com/feed/"
+      ],
+      "image": "database/image/imageDesign.png"
+	  },
+    "Development": {
+      "link":[
+        "https://www.smashingmagazine.com/feed/",
+        "https://css-tricks.com/feed/"
+      ],
+      "image": "database/image/imageDevelopment.png"
+	  },
+    "Programming": {
+      "link":[
+        "https://dev.to/feed",
+        "https://xxxxx/xxxxxxx"
+      ],
+      "image": "database/image/imageProgramming.png"
+	  }
+  },
+  "duration": 30
+}
